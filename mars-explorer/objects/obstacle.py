@@ -23,7 +23,7 @@ class Obstacle(DrawableObject):
                            self.get_borders()[1][1],
                            fill=self.color)
 
-    def can_exist(self,universe):
+    def can_exist(self, universe):
         if not is_in_world(self, universe):
             return False
         for obj in universe.objects:

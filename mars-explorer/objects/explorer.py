@@ -18,7 +18,8 @@ class Explorer(DrawableObject):
         self.size = cfg['explorer_size']
         # Color of explorer object.
         self.color = cfg['explorer_color']
-        # UniverseEnum.MICROVERSE or UniverseEnum.MULTIVERSE.
+        self.color_with_rocks = cfg['explorer_color_with_rocks']
+        # MarsBaseEnum.A or MarsBaseEnum.B.
         self.team = team
         # Speed of the explorer.
         self.speed = cfg['explorer_speed']
@@ -72,22 +73,50 @@ class Explorer(DrawableObject):
         self.y += self.dy
 
     def can_move(self):
-        pass
+        # Next move to check.
+        possible_x = self.x+self.dx
+        possible_y = self.y+self.dy
+
+        # Create a tuple of new points.
+        offset = self.size/2
+        possible_coord = ((possible_x-offset, possible_y+offset),
+                          (possible_x+offset, possible_y-offset))
+
+        # Can not move if outside of universe.
+        if not is_in_world(possible_coord, self.universe):
+            return False
+
+        # Can not move if collides with other objects. (Except for other explorers)
+        for other in self.universe.objects:
+            # Allow collisions with other explorers.
+            if isinstance(other, Explorer):
+                continue
+            if does_overlap(possible_coord, other):
+                return False
+
+        return True
 
     def tick(self):
-        if carrying_rock:
+        if self.carrying_rock:
             if self.base_in_reach():
                 self.carrying_rock = False
                 self.universe.n_rocks_collected += 1
             else:
-                # Set dx and dy towards base.
-                pass
+                # Set dx and dy towards corresponding base.
+                if self.team==MarsBaseEnum.A:
+                    self.dx, self.dy = normalize(self.universe.command_center_a.x-self.x,
+                                                 self.universe.command_center_a.y-self.y)
+                if self.team==MarsBaseEnum.B:
+                    self.dx, self.dy = normalize(self.universe.command_center_b.x-self.x,
+                                                 self.universe.command_center_b.y-self.y)
         else:
             rocks = self.rocks_in_reach()
+            # (TODO) Supports multiple collection of rocks.
             if len(rocks):
                 # Pick up and remove rock.
                 self.carrying_rock = True
-                self.universe.remove_object(rocks[0])
+                for rock in rocks:
+                    self.universe.remove_object(rock)
 
         # Find a possible random move.
         while not self.can_move():
@@ -97,22 +126,22 @@ class Explorer(DrawableObject):
         self.ticks += 1
 
     def draw(self, canvas):
-        force_field = Explorer(self.x, self.y, self.world)
-        force_field.size = 2 * self.sensor_range + self.size
+        force_field = Explorer(self.x, self.y, MarsBaseEnum.C, self.universe)
+        force_field.size = 4 * self.sensor_range + self.size
 
         top_left, bottom_right = force_field.get_borders()
-        canvas.create_oval(top_left.x,
-                           top_left.y,
-                           bottom_right.x,
-                           bottom_right.y,
+        canvas.create_oval(top_left[0],
+                           top_left[1],
+                           bottom_right[0],
+                           bottom_right[1],
                            outline=self.sensor_color)
 
         top_left, bottom_right = self.get_borders()
-        canvas.create_rectangle(top_left.x,
-                                top_left.y,
-                                bottom_right.x,
-                                bottom_right.y,
-                                fill=self.HAS_ROCK_COLOR if self.has_rock else self.COLOR)
+        canvas.create_rectangle(top_left[0],
+                                top_left[1],
+                                bottom_right[0],
+                                bottom_right[1],
+                                fill=self.color_with_rocks if self.carrying_rock else self.color)
 
     def compute_movement(self):
         dx = random.uniform(-self.speed, self.speed)

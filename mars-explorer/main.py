@@ -1,8 +1,10 @@
 #! /Users/kevinwkt/anaconda3/bin/python3
 import argparse
+import random
 
 from gui import GUI
 from objects.command_center import CommandCenter
+from objects.explorer import Explorer
 from objects.obstacle import Obstacle
 from objects.rock import Rock
 from objects.universe import Universe
@@ -16,6 +18,7 @@ def create_universe(n_obstacles, n_rocks, n_explorers, default_map, mode):
     ARBITRARY_EDGE_SPACE = 200
     ARBITRARY_UNIVERSE_WIDTH = 1600
     ARBITRARY_UNIVERSE_HEIGHT = 900
+    ARBITRARY_SPAWN_OFFSET = 10
 
     # Overrite universe details with default config files.
     if default_map == 'default_map_1':
@@ -30,10 +33,10 @@ def create_universe(n_obstacles, n_rocks, n_explorers, default_map, mode):
     # Create command centers depending on the execution mode.
     if mode == UniverseEnum.MICROVERSE:
         print('MAIN:: Implementing universe in single mode...')
-        command_center = CommandCenter(ARBITRARY_UNIVERSE_WIDTH/2,
-                         ARBITRARY_UNIVERSE_HEIGHT/2,
-                         MarsBaseEnum.A)
-        universe.add_object(command_center)
+        command_center_a = CommandCenter(ARBITRARY_UNIVERSE_WIDTH/2,
+                                         ARBITRARY_UNIVERSE_HEIGHT/2,
+                                         MarsBaseEnum.A)
+        universe.add_object(command_center_a)
     elif mode == UniverseEnum.MULTIVERSE:
         print('MAIN:: Implementing universe in multiverse (2 mars bases) mode...')
         universe.is_multiverse = True
@@ -44,12 +47,27 @@ def create_universe(n_obstacles, n_rocks, n_explorers, default_map, mode):
                                          MarsBaseEnum.B)
         universe.add_object(command_center_b)
 
-    # Create obstacles in the world.
+    # Create explorers in the universe.
+    for _ in range(n_explorers):
+        random_team = bool(random.getrandbits(1)) if mode == UniverseEnum.MULTIVERSE else True
+        if random_team:
+            explorer = Explorer(command_center_a.x + ARBITRARY_SPAWN_OFFSET,
+                                command_center_a.y + ARBITRARY_SPAWN_OFFSET,
+                                MarsBaseEnum.A,
+                                universe)
+        else:
+            explorer = Explorer(command_center_b.x + ARBITRARY_SPAWN_OFFSET,
+                                command_center_b.y + ARBITRARY_SPAWN_OFFSET,
+                                MarsBaseEnum.B,
+                                universe)
+        universe.add_object(explorer)
+
+    # Create obstacles in the universe.
     obstacles = Obstacle.create_obstacles(n_obstacles, universe)
     for obstacle in obstacles:
         universe.add_object(obstacle)
 
-    # Create rocks to collet in the world.
+    # Create rocks to collect in the universe.
     rocks = Rock.create_rocks(n_rocks, universe)
     for rock in rocks:
         universe.add_object(rock)
@@ -73,7 +91,7 @@ def main():
     args = parser.parse_args()
 
     print('MAIN:: Creating Universe...')
-    # Create World States.
+    # Create Universe States.
     universe = create_universe(args.obstacles,
                                args.rocks,
                                args.explorers,
