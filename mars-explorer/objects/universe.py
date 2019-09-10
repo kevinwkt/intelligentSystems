@@ -6,6 +6,7 @@ sys.path.append("../../")
 from .drawable_object import DrawableObject
 from .command_center import CommandCenter
 from .explorer import Explorer
+from .obstacle import Obstacle
 from .rock import Rock
 from settings.base_config import cfg
 from settings.constants import MarsBaseEnum
@@ -50,10 +51,15 @@ class Universe(DrawableObject):
             self.explorers.append(drawable_object)
         elif isinstance(drawable_object, Rock):
             self.rocks.append(drawable_object)
+        elif isinstance(drawable_object, Obstacle):
+            self.obstacles.append(drawable_object)
         elif isinstance(drawable_object, CommandCenter) and enum_check==MarsBaseEnum.A:
+            print('creating command_center_a')
             self.command_center_a = drawable_object
         elif isinstance(drawable_object, CommandCenter) and enum_check==MarsBaseEnum.B:
             self.command_center_b = drawable_object
+        else:
+            print('ERROR::UNIVERSE:: Unhandled add_object')
 
         self.objects.append(drawable_object)
 
@@ -64,6 +70,8 @@ class Universe(DrawableObject):
             self.explorers.remove(drawable_object)
         elif isinstance(drawable_object, Rock):
             self.rocks.remove(drawable_object)
+        elif isinstance(drawable_object, Obstacle):
+            self.obstacles.remove(drawable_object)
         elif isinstance(drawable_object, CommandCenter) and enum_check==MarsBaseEnum.A:
             self.command_center_a = None
         elif isinstance(drawable_object, CommandCenter) and enum_check==MarsBaseEnum.B:

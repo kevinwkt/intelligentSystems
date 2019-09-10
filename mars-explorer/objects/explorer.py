@@ -103,10 +103,10 @@ class Explorer(DrawableObject):
                 self.universe.n_rocks_collected += 1
             else:
                 # Set dx and dy towards corresponding base.
-                if self.team==MarsBaseEnum.A:
+                if self.team == MarsBaseEnum.A:
                     self.dx, self.dy = normalize(self.universe.command_center_a.x-self.x,
                                                  self.universe.command_center_a.y-self.y)
-                if self.team==MarsBaseEnum.B:
+                if self.team == MarsBaseEnum.B:
                     self.dx, self.dy = normalize(self.universe.command_center_b.x-self.x,
                                                  self.universe.command_center_b.y-self.y)
         else:

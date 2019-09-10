@@ -36,16 +36,16 @@ def create_universe(n_obstacles, n_rocks, n_explorers, default_map, mode):
         command_center_a = CommandCenter(ARBITRARY_UNIVERSE_WIDTH/2,
                                          ARBITRARY_UNIVERSE_HEIGHT/2,
                                          MarsBaseEnum.A)
-        universe.add_object(command_center_a)
+        universe.add_object(command_center_a, MarsBaseEnum.A)
     elif mode == UniverseEnum.MULTIVERSE:
         print('MAIN:: Implementing universe in multiverse (2 mars bases) mode...')
         universe.is_multiverse = True
         command_center_a = CommandCenter(ARBITRARY_EDGE_SPACE, ARBITRARY_EDGE_SPACE, MarsBaseEnum.A)
-        universe.add_object(command_center_a)
+        universe.add_object(command_center_a, MarsBaseEnum.A)
         command_center_b = CommandCenter(ARBITRARY_UNIVERSE_WIDTH-ARBITRARY_EDGE_SPACE,
                                          ARBITRARY_UNIVERSE_HEIGHT-ARBITRARY_EDGE_SPACE,
                                          MarsBaseEnum.B)
-        universe.add_object(command_center_b)
+        universe.add_object(command_center_b, MarsBaseEnum.B)
 
     # Create explorers in the universe.
     for _ in range(n_explorers):
