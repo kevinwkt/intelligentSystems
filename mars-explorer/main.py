@@ -1,18 +1,21 @@
 #! /Users/kevinwkt/anaconda3/bin/python3
 import argparse
-import os
-import sys
-file_dir = os.path.dirname(__file__)
-sys.path.append(file_dir)
 
 from gui import GUI
 from objects.command_center import CommandCenter
 from objects.obstacle import Obstacle
 from objects.rock import Rock
 from objects.universe import Universe
+from settings.constants import MarsBaseEnum
+from settings.constants import UniverseEnum
 from settings.defaults.default_map_1 import default_map_cfg_1
 
 def create_universe(n_obstacles, n_rocks, n_explorers, default_map, mode):
+
+    # Let's avoid magic numbers.
+    ARBITRARY_EDGE_SPACE = 200
+    ARBITRARY_UNIVERSE_WIDTH = 1600
+    ARBITRARY_UNIVERSE_HEIGHT = 900
 
     # Overrite universe details with default config files.
     if default_map == 'default_map_1':
@@ -21,25 +24,32 @@ def create_universe(n_obstacles, n_rocks, n_explorers, default_map, mode):
         n_obstacles = default_map_cfg_1['obstacles']
         n_explorers = default_map_cfg_1['explorers']
 
-    # Create base universe.
-    universe = Universe(1600, 1200, n_rocks)
+    # Create base universe. We also send n_rocks for terminal condition.
+    universe = Universe(ARBITRARY_UNIVERSE_WIDTH, ARBITRARY_UNIVERSE_HEIGHT, n_rocks, mode)
 
-    if mode == 'single':
-        command_center = CommandCenter(800, 500)
+    # Create command centers depending on the execution mode.
+    if mode == UniverseEnum.MICROVERSE:
+        print('MAIN:: Implementing universe in single mode...')
+        command_center = CommandCenter(ARBITRARY_UNIVERSE_WIDTH/2,
+                         ARBITRARY_UNIVERSE_HEIGHT/2,
+                         MarsBaseEnum.A)
         universe.add_object(command_center)
-    else:
+    elif mode == UniverseEnum.MULTIVERSE:
+        print('MAIN:: Implementing universe in multiverse (2 mars bases) mode...')
         universe.is_multiverse = True
-        command_center_a = CommandCenter(200, 200)
+        command_center_a = CommandCenter(ARBITRARY_EDGE_SPACE, ARBITRARY_EDGE_SPACE, MarsBaseEnum.A)
         universe.add_object(command_center_a)
-        command_center_b = CommandCenter(1500 - 200, 1000 - 200)
+        command_center_b = CommandCenter(ARBITRARY_UNIVERSE_WIDTH-ARBITRARY_EDGE_SPACE,
+                                         ARBITRARY_UNIVERSE_HEIGHT-ARBITRARY_EDGE_SPACE,
+                                         MarsBaseEnum.B)
         universe.add_object(command_center_b)
 
-    print(universe.is_multiverse)
-
+    # Create obstacles in the world.
     obstacles = Obstacle.create_obstacles(n_obstacles, universe)
     for obstacle in obstacles:
         universe.add_object(obstacle)
 
+    # Create rocks to collet in the world.
     rocks = Rock.create_rocks(n_rocks, universe)
     for rock in rocks:
         universe.add_object(rock)
@@ -48,12 +58,17 @@ def create_universe(n_obstacles, n_rocks, n_explorers, default_map, mode):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--map', default='default_map_1', dest='default_map', type=str)
-    parser.add_argument('--obstacles', default=500, dest='obstacles', type=int)
-    parser.add_argument('--rocks', default=100, dest='rocks', type=int)
-    parser.add_argument('--explorers', default=10, dest='explorers', type=int)
-    parser.add_argument('--mode', default='double', dest='mode', type=str)
-
+    parser.add_argument('--map', default='default_map_1', dest='default_map', type=str,
+                        help='load default maps from /settings/defaults, defaults to default_map_1')
+    parser.add_argument('--obstacles', default=40, dest='obstacles', type=int,
+                        help='total number of obstacles, defaults to 40')
+    parser.add_argument('--rocks', default=100, dest='rocks', type=int,
+                        help='total number of rocks, defaults to 100')
+    parser.add_argument('--explorers', default=10, dest='explorers', type=int,
+                        help='total number of explorers, defaults to 10')
+    parser.add_argument('--mode', default='double', dest='mode', type=str,
+                        help=('mode of simulation, single or double (number of mars bases), '
+                        'defaults to double'))
 
     args = parser.parse_args()
 
@@ -63,7 +78,7 @@ def main():
                                args.rocks,
                                args.explorers,
                                args.default_map,
-                               args.mode)
+                               UniverseEnum.MICROVERSE if args.mode=='single' else UniverseEnum.MULTIVERSE)
 
     print('MAIN:: Creating GUI...')
     gui = GUI(universe)

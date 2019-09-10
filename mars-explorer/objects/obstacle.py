@@ -1,4 +1,5 @@
 # An obstacle... In mars...
+
 import random
 import sys
 sys.path.append("../../")

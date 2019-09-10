@@ -15,7 +15,8 @@ cfg = {
     # EXPLORER FEATURES.
     'explorer_color': '#000000',
     'explorer_size': 20,
+    'explorer_speed': 1.3,
     'sensor_range': 3,
     'sensor_delay': 100,
-    'explorer_speed': 1.3,
+    'sensor_color': '#FFFFFF',
 }
