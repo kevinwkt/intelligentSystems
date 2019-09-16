@@ -33,7 +33,7 @@ class Rock(DrawableObject):
 
     def create_rocks(n_rocks, universe):
         rocks = []
-        while n_rocks > len(rocks):
+        while len(rocks) < n_rocks:
             x = random.randint(0, universe.width)
             y = random.randint(0, universe.height)
             rock = Rock(x, y)

@@ -28,8 +28,8 @@ class GUI(object):
         screen_width = self.window.winfo_screenwidth()
         screen_height = self.window.winfo_screenheight()
         # Get x and y
-        window_x = screen_width / 2 - self.width / 2
-        window_y = screen_height / 2 - self.height / 2
+        window_x = screen_width/2 - self.width/2
+        window_y = screen_height/2 - self.height/2
         return window_x, window_y
 
     def tick(self):
