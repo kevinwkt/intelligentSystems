@@ -18,6 +18,6 @@ cfg = {
     'explorer_size': 20,
     'explorer_speed': 1.3,
     'sensor_range': 3,
-    'sensor_delay': 100,
+    'sensor_delay': 10,
     'sensor_color': '#FFFFFF',
 }

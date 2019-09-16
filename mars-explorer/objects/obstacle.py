@@ -18,10 +18,10 @@ class Obstacle(DrawableObject):
 
     def draw(self, canvas):
         canvas.create_rectangle(self.get_borders()[0][0],
-                           self.get_borders()[0][1],
-                           self.get_borders()[1][0],
-                           self.get_borders()[1][1],
-                           fill=self.color)
+                                self.get_borders()[0][1],
+                                self.get_borders()[1][0],
+                                self.get_borders()[1][1],
+                                fill=self.color)
 
     def can_exist(self, universe):
         if not is_in_world(self, universe):
@@ -33,9 +33,9 @@ class Obstacle(DrawableObject):
 
     def create_obstacles(n_obstacles, universe):
         obstacles = []
-        while n_obstacles > len(obstacles):
+        while len(obstacles) < n_obstacles:
             x = random.randint(0, universe.width)
-            y = random.randint(0, universe.width)
+            y = random.randint(0, universe.height)
             obstacle = Obstacle(x, y)
             if obstacle.can_exist(universe):
                 obstacles.append(obstacle)

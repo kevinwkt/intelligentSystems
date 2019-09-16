@@ -21,16 +21,25 @@ def is_in_world(object1, universe):
 def does_overlap(object1, object2, epsilon=0):
     if isinstance(object1, DrawableObject):
         # If object1 is an object depack.
-        return (object1.get_borders()[0][0] - epsilon < object2.get_borders()[1][0] and
-                object1.get_borders()[1][0] + epsilon > object2.get_borders()[0][0] and
-                object1.get_borders()[0][1] - epsilon < object2.get_borders()[1][1] and
-                object1.get_borders()[1][1] + epsilon > object2.get_borders()[0][1])
+        obj1_top_left, obj1_bottom_right = object1.get_borders()
     else:
         # Else assume object1 is a tuple of points.
-        return (object1[0][0] - epsilon < object2.get_borders()[1][0] and
-                object1[1][0] + epsilon > object2.get_borders()[0][0] and
-                object1[0][1] - epsilon < object2.get_borders()[1][1] and
-                object1[1][1] + epsilon > object2.get_borders()[0][1])
+        obj1_top_left, obj1_bottom_right = object1
+
+    if isinstance(object2, DrawableObject):
+        # If object1 is an object depack.
+        obj2_top_left, obj2_bottom_right = object2.get_borders()
+    else:
+        # Else assume object1 is a tuple of points.
+        obj2_top_left, obj2_bottom_right = object2
+
+    return (
+        # Check for x axis first.
+        obj1_top_left[0] - epsilon < obj2_bottom_right[0] and
+        obj1_bottom_right[0] + epsilon > obj2_top_left[0] and
+        # Check for y axis second.
+        obj1_top_left[1] - epsilon < obj2_bottom_right[1] and
+        obj1_bottom_right[1] + epsilon > obj2_top_left[1])
 
 def compute_ab(a, b):
     return math.sqrt(a**2 + b**2)

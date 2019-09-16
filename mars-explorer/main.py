@@ -10,9 +10,11 @@ from objects.rock import Rock
 from objects.universe import Universe
 from settings.constants import MarsBaseEnum
 from settings.constants import UniverseEnum
-from settings.defaults.default_map_1 import default_map_cfg_1
+from settings.defaults.default_map_1 import default_map_cfg_1, default_map_cfg_2
 
-def create_universe(n_obstacles, n_rocks, n_explorers, default_map, mode):
+def create_universe(n_obstacles, n_rocks, n_explorers, default_map, mode, multi_agent):
+
+    print(multi_agent)
 
     # Let's avoid magic numbers.
     ARBITRARY_EDGE_SPACE = 200
@@ -26,6 +28,11 @@ def create_universe(n_obstacles, n_rocks, n_explorers, default_map, mode):
         n_rocks = default_map_cfg_1['rocks']
         n_obstacles = default_map_cfg_1['obstacles']
         n_explorers = default_map_cfg_1['explorers']
+    elif default_map == 'default_map_2':
+        print('MAIN:: Overwriting universe with default_map_2...')
+        n_rocks = default_map_cfg_2['rocks']
+        n_obstacles = default_map_cfg_2['obstacles']
+        n_explorers = default_map_cfg_2['explorers']
 
     # Create base universe. We also send n_rocks for terminal condition.
     universe = Universe(ARBITRARY_UNIVERSE_WIDTH, ARBITRARY_UNIVERSE_HEIGHT, n_rocks, mode)
@@ -48,26 +55,31 @@ def create_universe(n_obstacles, n_rocks, n_explorers, default_map, mode):
         universe.add_object(command_center_b, MarsBaseEnum.B)
 
     # Create explorers in the universe.
+    print('MAIN:: Deploying explorers into the universe...')
     for _ in range(n_explorers):
         random_team = bool(random.getrandbits(1)) if mode == UniverseEnum.MULTIVERSE else True
         if random_team:
             explorer = Explorer(command_center_a.x + ARBITRARY_SPAWN_OFFSET,
                                 command_center_a.y + ARBITRARY_SPAWN_OFFSET,
                                 MarsBaseEnum.A,
-                                universe)
+                                universe,
+                                multi_agent)
         else:
             explorer = Explorer(command_center_b.x + ARBITRARY_SPAWN_OFFSET,
                                 command_center_b.y + ARBITRARY_SPAWN_OFFSET,
                                 MarsBaseEnum.B,
-                                universe)
+                                universe,
+                                multi_agent)
         universe.add_object(explorer)
 
     # Create obstacles in the universe.
+    print('MAIN:: Forming obstacles in the universe...')
     obstacles = Obstacle.create_obstacles(n_obstacles, universe)
     for obstacle in obstacles:
         universe.add_object(obstacle)
 
     # Create rocks to collect in the universe.
+    print('MAIN:: Forming rocks in the universe...')
     rocks = Rock.create_rocks(n_rocks, universe)
     for rock in rocks:
         universe.add_object(rock)
@@ -87,6 +99,9 @@ def main():
     parser.add_argument('--mode', default='double', dest='mode', type=str,
                         help=('mode of simulation, single or double (number of mars bases), '
                         'defaults to double'))
+    parser.add_argument('--multi_agent', default=False, dest='multi_agent', action='store_true',
+                        help=('if multi-agent mode is enabled, explorers will share a message queue so that'
+                        ' they know where to go'))
 
     args = parser.parse_args()
 
@@ -96,7 +111,8 @@ def main():
                                args.rocks,
                                args.explorers,
                                args.default_map,
-                               UniverseEnum.MICROVERSE if args.mode=='single' else UniverseEnum.MULTIVERSE)
+                               UniverseEnum.MICROVERSE if args.mode=='single' else UniverseEnum.MULTIVERSE,
+                               args.multi_agent)
 
     print('MAIN:: Creating GUI...')
     gui = GUI(universe)
