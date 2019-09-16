@@ -1,4 +1,5 @@
 # A Mars Explorer.
+import copy
 import random
 import sys
 sys.path.append("../../")
@@ -6,8 +7,7 @@ sys.path.append("../../")
 from queue import Queue
 from objects.drawable_object import DrawableObject
 from objects.obstacle import Obstacle
-from objects.message_queue_a import MessageQueueA
-from objects.message_queue_b import MessageQueueB
+from utils.message_queue import MessageQueueA, MessageQueueB
 from settings.base_config import cfg
 from settings.constants import MarsBaseEnum
 from settings.constants import UniverseEnum
@@ -48,7 +48,7 @@ class Explorer(DrawableObject):
         # Multi-agent message queue to receive messages.
         self.message_queue = None
         if self.multi_agent:
-            self.message_queue = MessageQueueA.getInstance() if team == MarsBaseEnum.A else MessageQueueB.getInstance()
+            self.message_queue = MessageQueueA() if team == MarsBaseEnum.A else MessageQueueB()
         # (TODO) How many rocks it is carrying.
         self.n_rocks = 0
 
@@ -132,16 +132,14 @@ class Explorer(DrawableObject):
             if not self.message_queue.empty():
                 self.mission_rock = self.message_queue.get()
         # Check if it is multi_agent and if it is overlapping with the messaged rock.
-        if self.multi_agent and does_overlap(self.get_borders(), self.mission_rock.get_borders()):
-            # Try to get a new mission
-            if not self.message_queue.empty():
-                self.mission_rock = self.message_queue.get()
+        if self.multi_agent and self.mission_rock and does_overlap(self.get_borders(), self.mission_rock.get_borders()):
+            self.mission_rock = None
         if self.carrying_rock:
             # Only checks for rocks while carrying a rock if in multi-agent mode to append to queue.
             if self.multi_agent:
                 rocks = self.rocks_in_reach()
                 for rock in rocks:
-                    self.message_queue.put(rock)
+                    self.message_queue.put(copy.deepcopy(rock))
             if self.base_in_reach():
                 self.carrying_rock = False
                 self.universe.n_rocks_collected += 1
@@ -163,11 +161,11 @@ class Explorer(DrawableObject):
                 self.universe.remove_object(rocks[0])
                 # Dump the rest of the rocks into the queue if multiagent mode.
                 if self.multi_agent:
-                    for rock in rocks:
-                        self.message_queue.put(rock)
+                    for rock in rocks[1:]:
+                        self.message_queue.put(copy.deepcopy(rock))
             else:
                 # If multi-agent and did not find rock, go towards the mission rock.
-                if self.multi_agent:
+                if self.multi_agent and self.mission_rock:
                     self.dx, self.dy = normalize(self.mission_rock.x-self.x,
                                                  self.mission_rock.y-self.y)
 
