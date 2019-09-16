@@ -13,8 +13,12 @@ cfg = {
     'rock_color': '#422019',
 
     # EXPLORER FEATURES.
-    'explorer_color': '#000000',
-    'explorer_color_with_rocks': '#ffff00',
+    'explorer_a_color': '#87CEFA',
+    'explorer_a_color_with_rocks': '#1E90FF',
+    'explorer_a_color_with_mission': '#000080',
+    'explorer_b_color': '#D8BFD8',
+    'explorer_b_color_with_rocks': '#EE82EE',
+    'explorer_b_color_with_mission': '#9932CC',
     'explorer_size': 20,
     'explorer_speed': 1.3,
     'sensor_range': 3,

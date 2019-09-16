@@ -32,12 +32,19 @@ class Obstacle(DrawableObject):
         return True
 
     def create_obstacles(n_obstacles, universe):
+        # Auxiliary function to not have obstacles blocking indefinitely explorers.
+        def overlaps_with_current(obj1, current_obstacles):
+            for current in current_obstacles:
+                if does_overlap(obj1, current, obj1.size):
+                    return True
+            return False
+
         obstacles = []
         while len(obstacles) < n_obstacles:
             x = random.randint(0, universe.width)
             y = random.randint(0, universe.height)
             obstacle = Obstacle(x, y)
-            if obstacle.can_exist(universe):
+            if obstacle.can_exist(universe) and not overlaps_with_current(obstacle, obstacles):
                 obstacles.append(obstacle)
 
         return obstacles

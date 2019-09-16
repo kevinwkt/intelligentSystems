@@ -18,13 +18,14 @@ class Explorer(DrawableObject):
         # Current centroid x and y coord.
         self.x = x
         self.y = y
+        # MarsBaseEnum.A or MarsBaseEnum.B.
+        self.team = team
         # Size of explorer.
         self.size = cfg['explorer_size']
         # Color of explorer object.
-        self.color = cfg['explorer_color']
-        self.color_with_rocks = cfg['explorer_color_with_rocks']
-        # MarsBaseEnum.A or MarsBaseEnum.B.
-        self.team = team
+        self.color = cfg['explorer_a_color'] if self.team == MarsBaseEnum.A else cfg['explorer_b_color']
+        self.color_with_rocks = cfg['explorer_a_color_with_rocks'] if self.team == MarsBaseEnum.A else cfg['explorer_b_color_with_rocks']
+        self.color_with_missions = cfg['explorer_a_color_with_mission'] if self.team == MarsBaseEnum.A else cfg['explorer_b_color_with_mission']
         # Speed of the explorer.
         self.speed = cfg['explorer_speed']
         # Copy of universe.
@@ -49,6 +50,8 @@ class Explorer(DrawableObject):
         self.message_queue = None
         if self.multi_agent:
             self.message_queue = MessageQueueA() if team == MarsBaseEnum.A else MessageQueueB()
+        # Multi-agent mission_bound.
+        self.mission_bound = False
         # (TODO) How many rocks it is carrying.
         self.n_rocks = 0
 
@@ -133,10 +136,12 @@ class Explorer(DrawableObject):
                 self.mission_rock = self.message_queue.get()
         # Check if it is multi_agent and if it is overlapping with the messaged rock.
         if self.multi_agent and self.mission_rock and does_overlap(self.get_borders(), self.mission_rock.get_borders()):
+            self.mission_bound = False
             self.mission_rock = None
         if self.carrying_rock:
             # Only checks for rocks while carrying a rock if in multi-agent mode to append to queue.
             if self.multi_agent:
+                self.mission_bound = False
                 rocks = self.rocks_in_reach()
                 for rock in rocks:
                     self.message_queue.put(copy.deepcopy(rock))
@@ -155,17 +160,21 @@ class Explorer(DrawableObject):
             rocks = self.rocks_in_reach()
             # (TODO) Supports multiple collection of rocks.
             if len(rocks):
+                # No more mission_bound (color).
+                self.mission_bound = False
                 # Pick up and remove rock.
                 self.carrying_rock = True
                 # Pick up a single rock.
                 self.universe.remove_object(rocks[0])
                 # Dump the rest of the rocks into the queue if multiagent mode.
                 if self.multi_agent:
+                    self.mission_bound = False
                     for rock in rocks[1:]:
                         self.message_queue.put(copy.deepcopy(rock))
             else:
                 # If multi-agent and did not find rock, go towards the mission rock.
                 if self.multi_agent and self.mission_rock:
+                    self.mission_bound = True
                     self.dx, self.dy = normalize(self.mission_rock.x-self.x,
                                                  self.mission_rock.y-self.y)
 
@@ -188,11 +197,18 @@ class Explorer(DrawableObject):
                            outline=self.sensor_color)
 
         top_left, bottom_right = self.get_borders()
-        canvas.create_rectangle(top_left[0],
-                                top_left[1],
-                                bottom_right[0],
-                                bottom_right[1],
-                                fill=self.color_with_rocks if self.carrying_rock else self.color)
+        if self.mission_bound:
+            canvas.create_rectangle(top_left[0],
+                                    top_left[1],
+                                    bottom_right[0],
+                                    bottom_right[1],
+                                    fill=self.color_with_missions)
+        else:
+            canvas.create_rectangle(top_left[0],
+                                    top_left[1],
+                                    bottom_right[0],
+                                    bottom_right[1],
+                                    fill=self.color_with_rocks if self.carrying_rock else self.color)
 
     def compute_movement(self):
         dx = random.uniform(-self.speed, self.speed)
