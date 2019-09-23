@@ -6,6 +6,16 @@ You shouldn't be using a lot of Python2 anyways...
 
 hopefully...?
 
+## M@r5 3xpl0r3r
+No requirements since TkInter is Python's de-facto GUI.
+
+## @*
+```
+pip install pygraphviz
+pip install networkx
+pip install matplotlib
+```
+
 # M@r5 3xpl0r3r
 
 ## Introduction
@@ -41,7 +51,7 @@ However, here are some of the flags, and a simple way to run this.
 ./main.py --obstacles=50 --rocks=70 --explorers=30 --multi_agent
 ```
 
-# A-*
+# @*
 
 ## Introduction
 
