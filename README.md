@@ -86,6 +86,8 @@ Output by matplotlib + networkx...
 
 The following is an output using matplotlib + networkx for a simple run:
 
+![Alt text](./assets/example_output_graph.png?raw=true "Answer Run without heuristic")
+
 ## Usage
 
 Like the other projects, the best recommendations would be to read the code given its size and simplicity.
