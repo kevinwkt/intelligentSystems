@@ -27,10 +27,10 @@
 # Output by matplotlib+networkx
 
 from collections import defaultdict
+from networkx.drawing.nx_agraph import graphviz_layout
 import math
 import matplotlib.pyplot as plt
 import networkx as nx
-from networkx.drawing.nx_agraph import graphviz_layout
 
 # Dijkstra map containing the minimum cost for different states.
 visited = defaultdict(lambda:None)
@@ -41,6 +41,8 @@ cost = [1, 3, 6, 8, 12]
 path_expl = []
 # Hard-coded max limit.
 max_cost = 30
+# Hard-coded final state.
+final_state = (0, 31)
 
 # Graph for visualization.
 G = nx.Graph()
@@ -73,8 +75,8 @@ def handle_nx_graph():
 
     values = [0.25 for x in all_edges]
 
-    pos = graphviz_layout(G, prog='dot')
-    #pos = nx.spring_layout(G, k=5/math.sqrt(G.order()))
+    #pos = graphviz_layout(G, prog='dot')
+    pos = nx.spring_layout(G, k=5/math.sqrt(G.order()))
     nx.draw_networkx_nodes(G, pos, cmap=plt.get_cmap('jet'), 
                        node_size = 800)
     nx.draw_networkx_labels(G, pos)
@@ -97,7 +99,7 @@ def dijkstra(current_state, lamp_left, current_cost):
     visited[current_state] = min(visited[current_state], current_cost) if visited[current_state] else current_cost 
 
     # Check for final state to finish recursion.
-    if current_state == (0, 31):
+    if current_state == final_state:
         return True
 
     possible = []
@@ -135,7 +137,6 @@ def dijkstra(current_state, lamp_left, current_cost):
 def main():
     # Initial state.
     initial_state = (31, 0)
-    test_state = (0, 31)
     # Initial lamp position; True is when lamp is on the left.
     initial_lamp_position = True
     # Initial cost.
