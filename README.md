@@ -1,3 +1,11 @@
+# Requirements
+
+Please don't forget to use Python3...
+
+You shouldn't be using a lot of Python2 anyways...
+
+hopefully...?
+
 # M@r5 3xpl0r3r
 
 ## Introduction
@@ -33,9 +41,51 @@ However, here are some of the flags, and a simple way to run this.
 ./main.py --obstacles=50 --rocks=70 --explorers=30 --multi_agent
 ```
 
+# A-*
 
-## Requirements
+## Introduction
 
-Please don't forget to use Python3...
-You shouldn't be using a lot of Python2 anyways...
-hopefully...?
+This is a simple A* algorithm where we run the dijkstra with the following focus:
+
+### **Search Space**:
+The search space for each movement would depend on two factors:
+    1. Which side the lamp is currently at.
+    2. Who is at the side where the lamp is at.
+
+### **Initial State**:
+In the beginning we would have everyone on the left side and no one on the right side.
+Since we will represent the people present with a bit flip when on, they are present, the initial state would be (31, 0).
+
+### **Goal State**:
+Since the goal state would be to have everyone on the right side of the bridge, the representation state would be (0, 31).
+
+### **Rules**:
+    - Only 2 people can be bit flipped at the same time where we take the max(cost1, cost2) as cost.
+    - Cost can not exceed the hard limit of 30.
+
+### **Cost Function**:
+This is currently set to ```return 1```
+
+### **Heuristic Function**:
+This is also currently set to ```return 1```.
+
+This is yet to be implemented.
+
+### **Search Tree Generation**:
+Output by matplotlib + networkx...
+
+The following is an output using matplotlib + networkx for a simple run:
+
+## Usage
+
+Like the other projects, the best recommendations would be to read the code given its size and simplicity.
+
+However, here are some of the flags, and a simple way to run this.
+
+```shell
+# Main focus of homework...
+./main.py
+
+# For variable max-cost.
+./main.py --max-cost=30
+```
